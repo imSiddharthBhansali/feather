@@ -6,5 +6,5 @@ cd "$SCRIPT_DIRECTORY/.."
 
 uv sync --locked
 uv run ruff format . --check
-uv run ruff check . --extend-select I,F403
+uv run ruff check . --extend-select I,F
 uv run pyrefly check . --preset all
