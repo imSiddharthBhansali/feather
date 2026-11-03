@@ -1,14 +1,18 @@
+import os
 from pathlib import Path
 
 from pydantic_ai import Agent
 from pydantic_ai.usage import UsageLimits
+from pydantic_ai_harness import RepoContext
 from pydantic_ai_harness.coder import Coder
 from pydantic_ai_harness.docker_sandbox import DockerSandbox
 
-from .utils import get_cli_args, get_docker_args, perform_docker_cleanup
+from ._capabilities import DockerSandboxCleaner
+from ._utils import get_cli_args, get_docker_args
 
 
 def main() -> None:
+    os.environ["PYDANTIC_AI_NO_BANNER"] = "1"
     cli_args = get_cli_args()
     source_dir = cli_args.source_dir
     model = cli_args.model
@@ -16,7 +20,6 @@ def main() -> None:
     docker_publish_ports = cli_args.docker_publish_ports
     retry_limit = cli_args.retry_limit
     request_limit = cli_args.request_limit
-    docker_cleanup = cli_args.docker_cleanup
 
     if (
         source_dir is None
@@ -25,7 +28,6 @@ def main() -> None:
         or docker_publish_ports is None
         or retry_limit is None
         or request_limit is None
-        or docker_cleanup is None
     ):
         print("Fatal: There was no value found for one or more parameters.")
         return
@@ -50,12 +52,15 @@ def main() -> None:
     agent = Agent(
         model=model,
         retries=retry_limit,
-        capabilities=[Coder(), docker_sandbox],
+        capabilities=[
+            Coder(repo_context=False),
+            docker_sandbox,
+            DockerSandboxCleaner(),
+            RepoContext(nested_traversal=True),
+        ],
     )
 
+    print()
     agent.to_cli_sync(
         prog_name="Feather", usage_limits=UsageLimits(request_limit=request_limit)
     )
-
-    if docker_cleanup:
-        perform_docker_cleanup()
