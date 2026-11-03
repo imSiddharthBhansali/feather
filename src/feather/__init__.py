@@ -7,7 +7,7 @@ from pydantic_ai_harness import RepoContext
 from pydantic_ai_harness.coder import Coder
 from pydantic_ai_harness.docker_sandbox import DockerSandbox
 
-from ._capabilities import DockerSandboxCleaner
+from ._capabilities import DockerSandboxDestroyer
 from ._utils import get_cli_args, get_docker_args
 
 
@@ -55,7 +55,7 @@ def main() -> None:
         capabilities=[
             Coder(repo_context=False),
             docker_sandbox,
-            DockerSandboxCleaner(),
+            DockerSandboxDestroyer(),
             RepoContext(nested_traversal=True),
         ],
     )

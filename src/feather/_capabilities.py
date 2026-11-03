@@ -9,7 +9,7 @@ from pydantic_ai.workspaces import WorkspaceRef
 from pydantic_ai_harness.docker_sandbox import DockerSandbox
 
 
-class DockerSandboxCleaner(AbstractCapability):
+class DockerSandboxDestroyer(AbstractCapability):
     def __init__(self) -> None:
         self.registered_ids = set()
 
