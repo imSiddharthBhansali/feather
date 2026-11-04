@@ -20,7 +20,9 @@ def get_docker_args(publish_ports: list[str], source_dir: str) -> list[str]:
     group_id_str = str(group_id)
 
     ret.extend(["--user", user_id_str + ":" + group_id_str])
-    ret.extend(["--tmpfs", "/home/feather,uid=" + user_id_str + ",gid=" + group_id_str])
+    ret.extend(
+        ["--tmpfs", "/home/feather:exec,uid=" + user_id_str + ",gid=" + group_id_str]
+    )
     ret.extend(["--env", "HOME=/home/feather"])
     print("Docker arguments: " + str(ret))
     return ret
@@ -59,7 +61,7 @@ def get_cli_args() -> argparse.Namespace:
         type=str,
         nargs="+",
         help="A list of strings in the format HOST_PORT:SANDBOX_PORT for publishing the Docker sandbox."
-        + " The published IP address will be 127.0.0.1 no matter what."
+        + " The published IP address will be 127.0.0.1 on the host machine no matter what."
         + " Example = 8000:7000 7000:6000 6000:5000",
         default=[],
     )
