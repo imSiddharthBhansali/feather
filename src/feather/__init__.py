@@ -8,6 +8,7 @@ from pydantic_ai_harness.coder import Coder
 from pydantic_ai_harness.docker_sandbox import DockerSandbox
 
 from ._capabilities import DockerSandboxDestroyer
+from ._constants import WELCOME_MESSAGE
 from ._utils import get_cli_args, get_docker_args
 
 
@@ -60,7 +61,7 @@ def main() -> None:
         ],
     )
 
-    print()
+    print(WELCOME_MESSAGE)
     agent.to_cli_sync(
         prog_name="Feather", usage_limits=UsageLimits(request_limit=request_limit)
     )

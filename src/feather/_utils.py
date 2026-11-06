@@ -24,7 +24,6 @@ def get_docker_args(publish_ports: list[str], source_dir: str) -> list[str]:
         ["--tmpfs", "/home/feather:exec,uid=" + user_id_str + ",gid=" + group_id_str]
     )
     ret.extend(["--env", "HOME=/home/feather"])
-    print("Docker arguments: " + str(ret))
     return ret
 
 

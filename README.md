@@ -23,6 +23,12 @@ uv tool install .
 
 For a clean install/update you can just pull down the latest code and run the command again.
 
+Run `feather --help` to confirm that it was properly installed. If you cannot run that command, run the following and restart your shell:
+
+```bash
+uv tool update-shell
+```
+
 ## API Keys & Environment Variables
 
 Depending on which model provider you specify via `--model`, you must provide the corresponding API key as an environment variable in standard Pydantic AI format:
@@ -37,11 +43,7 @@ Pydantic AI supports many other providers as well.
 
 ## CLI Usage
 
-Feather exposes a command-line interface via `feather`:
-
-```bash
-feather --help
-```
+Feather exposes a command-line interface via `feather`. Usage is detailed below. After you run the command, you will enter a simple chat interface.
 
 ### Command-Line Arguments
 
