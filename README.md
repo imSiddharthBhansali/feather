@@ -11,7 +11,7 @@ Any model compatible with Pydantic AI can be used. For details and naming conven
 - uv (which will automatically deal with Python versioning and dependencies)
 - Docker (running and accessible)
 
-Feather is compatible with both Windows and Unix machines.
+If on Windows, you will need to use Windows Subsystem for Linux (WSL).
 
 ## Installation
 
@@ -62,12 +62,4 @@ feather \
   --model google:gemini-3.5-flash \
   --docker-image python:3.13-slim \
   --docker-publish-ports 8000:7000 7000:6000
-```
-
-## Development & Code Quality
-
-Code formatting, linting, and type checking are enforced via script:
-
-```bash
-./scripts/check-code-quality.sh
 ```

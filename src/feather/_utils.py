@@ -9,15 +9,8 @@ def get_docker_args(publish_ports: list[str], source_dir: str) -> list[str]:
         for ports in publish_ports:
             ret.extend(["--publish", "127.0.0.1:" + ports])
 
-    user_id = 1000
-    group_id = 1000
-
-    if hasattr(os, "getuid") and hasattr(os, "getgid"):
-        user_id = os.getuid()
-        group_id = os.getgid()
-
-    user_id_str = str(user_id)
-    group_id_str = str(group_id)
+    user_id_str = str(os.getuid())
+    group_id_str = str(os.getgid())
 
     ret.extend(["--user", user_id_str + ":" + group_id_str])
     ret.extend(

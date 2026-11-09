@@ -1,6 +1,6 @@
-import os
 from pathlib import Path
 
+import logfire
 from pydantic_ai import Agent
 from pydantic_ai.usage import UsageLimits
 from pydantic_ai_harness import RepoContext
@@ -8,12 +8,14 @@ from pydantic_ai_harness.coder import Coder
 from pydantic_ai_harness.docker_sandbox import DockerSandbox
 
 from ._capabilities import DockerSandboxDestroyer
-from ._constants import WELCOME_MESSAGE
+from ._cli import run_cli
 from ._utils import get_cli_args, get_docker_args
 
 
 def main() -> None:
-    os.environ["PYDANTIC_AI_NO_BANNER"] = "1"
+    _ = logfire.configure(send_to_logfire=False)
+    logfire.instrument_pydantic_ai()
+
     cli_args = get_cli_args()
     source_dir = cli_args.source_dir
     model = cli_args.model
@@ -61,7 +63,4 @@ def main() -> None:
         ],
     )
 
-    print(WELCOME_MESSAGE)
-    agent.to_cli_sync(
-        prog_name="Feather", usage_limits=UsageLimits(request_limit=request_limit)
-    )
+    run_cli(agent, UsageLimits(request_limit=request_limit))
