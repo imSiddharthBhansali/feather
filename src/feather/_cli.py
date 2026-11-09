@@ -2,13 +2,14 @@ import time
 
 from pydantic_ai import Agent, ModelMessage
 from pydantic_ai.usage import UsageLimits
+from pydantic_ai.workspaces import WorkspaceRef
 from rich.console import Console
 from rich.markdown import Markdown
 
 from ._constants import WELCOME_MESSAGE
 
 
-def run_cli(agent: Agent, usage_limits: UsageLimits) -> None:
+def run_cli(agent: Agent, usage_limits: UsageLimits, docker_ref: WorkspaceRef) -> None:
     message_history: list[ModelMessage] = []
     console = Console()
     console.print()
@@ -42,9 +43,12 @@ def run_cli(agent: Agent, usage_limits: UsageLimits) -> None:
                 user_prompt=user_prompt,
                 usage_limits=usage_limits,
                 message_history=message_history,
+                workspace=docker_ref,
             )
             end_time = time.perf_counter()
-            message_history.append(agent_response.response)
+
+            message_history.clear()
+            message_history.extend(agent_response.all_messages())
 
             console.print()
             console.print(Markdown(agent_response.output))

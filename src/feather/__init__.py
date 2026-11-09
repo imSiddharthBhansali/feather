@@ -1,3 +1,5 @@
+import asyncio
+import atexit
 from pathlib import Path
 
 import logfire
@@ -5,9 +7,8 @@ from pydantic_ai import Agent
 from pydantic_ai.usage import UsageLimits
 from pydantic_ai_harness import RepoContext
 from pydantic_ai_harness.coder import Coder
-from pydantic_ai_harness.docker_sandbox import DockerSandbox
+from pydantic_ai_harness.docker_sandbox import DockerSandbox, DockerSandboxBackend
 
-from ._capabilities import DockerSandboxDestroyer
 from ._cli import run_cli
 from ._utils import get_cli_args, get_docker_args
 
@@ -48,19 +49,31 @@ def main() -> None:
         return
 
     docker_args = get_docker_args(docker_publish_ports, normalized_source_dir)
-    docker_sandbox = DockerSandbox(
+    docker_sandbox_backend = DockerSandboxBackend(
         image=docker_image, docker_args=docker_args, working_dir="/workspace"
     )
+
+    create_docker_sandbox = asyncio.run(docker_sandbox_backend.run("ls", shell=True))
+    docker_ref = docker_sandbox_backend.ref
+
+    if docker_ref is None:
+        print("Failed to create Docker sandbox.")
+        return
+
+    _ = atexit.register(asyncio.run, DockerSandbox().destroy(docker_ref))
+
+    if create_docker_sandbox.exit_code != 0:
+        print("Failed to create Docker sandbox.")
+        return
 
     agent = Agent(
         model=model,
         retries=retry_limit,
         capabilities=[
             Coder(repo_context=False),
-            docker_sandbox,
-            DockerSandboxDestroyer(),
             RepoContext(nested_traversal=True),
+            DockerSandbox(),
         ],
     )
 
-    run_cli(agent, UsageLimits(request_limit=request_limit))
+    run_cli(agent, UsageLimits(request_limit=request_limit), docker_ref)
