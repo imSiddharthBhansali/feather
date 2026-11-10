@@ -2,9 +2,12 @@
 
 Feather is a BYOK (bring-your-own-key) agentic coding CLI harness built on top of [Pydantic AI](https://pydantic.dev/docs/ai/overview/). It securely executes AI-driven coding tasks inside isolated Docker sandboxes with mounted source code directories and optional port publishing. It also fully manages the sandbox lifecycle from creation to destruction.
 
+<img width="1015" height="584" alt="Feather Screenshot" src="https://github.com/user-attachments/assets/de3243e3-f370-40de-baf2-7217fc40241c" />
+
+
 ## Supported Models
 
-Any model compatible with Pydantic AI can be used. For details and naming conventions across different providers, see the [Pydantic AI Models Overview](https://pydantic.dev/docs/ai/models/overview/).
+Any model compatible with Pydantic AI can be used. For details and naming conventions across different providers, see the [Pydantic AI Models Overview](https://pydantic.dev/docs/ai/models/overview/). Select the provider that you are looking to use and you should be able to find what you need to pass into Feather either through CLI arguments or through environment variables (more on that below).
 
 ## Requirements
 
@@ -43,7 +46,7 @@ Pydantic AI supports many other providers as well.
 
 ## CLI Usage
 
-Feather exposes a command-line interface via `feather`. Usage is detailed below. After you run the command, you will enter a simple chat interface.
+Feather exposes a command-line interface via `feather`. Usage is detailed below. After you run the command, you will enter a simple chat interface akin to the example screenshot at the top of the README.
 
 ### Command-Line Arguments
 
