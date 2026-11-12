@@ -1,6 +1,8 @@
+import sys
 import time
 
 from pydantic_ai import Agent, ModelMessage
+from pydantic_ai.exceptions import AgentRunError
 from pydantic_ai.usage import UsageLimits
 from pydantic_ai.workspaces import WorkspaceRef
 from rich.console import Console
@@ -25,7 +27,7 @@ def run_cli(agent: Agent, usage_limits: UsageLimits, docker_ref: WorkspaceRef) -
                 continue
 
             if user_prompt == "/exit":
-                break
+                sys.exit(0)
 
             if user_prompt == "/clear":
                 message_history.clear()
@@ -66,4 +68,10 @@ def run_cli(agent: Agent, usage_limits: UsageLimits, docker_ref: WorkspaceRef) -
             console.print()
             console.print("Interrupted. Type /exit to quit.")
             console.print()
-            continue
+        except EOFError:
+            console.print()
+            sys.exit(0)
+        except AgentRunError as e:
+            console.print()
+            console.print(e, markup=False)
+            console.print()
