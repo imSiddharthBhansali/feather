@@ -70,6 +70,7 @@ def run_cli(agent: Agent, usage_limits: UsageLimits, docker_ref: WorkspaceRef) -
             console.print()
         except EOFError:
             console.print()
+            console.print()
             sys.exit(0)
         except AgentRunError as e:
             console.print()
