@@ -1,22 +1,43 @@
 import argparse
+import asyncio
 import os
+
+from pydantic_ai_harness.docker_sandbox import DockerSandbox, DockerSandboxBackend
+
+
+def destroy_docker_sandbox(backend: DockerSandboxBackend) -> None:
+    if backend.ref is not None:
+        asyncio.run(DockerSandbox().destroy(backend.ref))
 
 
 def get_docker_args(publish_ports: list[str], source_dir: str) -> list[str]:
-    ret = ["--volume", source_dir + ":/workspace"]
+    ret = ["--mount", "type=bind,source=" + source_dir + ",target=/workspace"]
 
-    if publish_ports is not None:
-        for ports in publish_ports:
-            ret.extend(["--publish", "127.0.0.1:" + ports])
+    for ports in publish_ports:
+        ret.extend(["--publish", "127.0.0.1:" + ports])
 
-    user_id_str = str(os.getuid())
-    group_id_str = str(os.getgid())
+    try:
+        user_id_str = str(os.getuid())
+        group_id_str = str(os.getgid())
+    except AttributeError:
+        user_id_str = "1000"
+        group_id_str = "1000"
 
     ret.extend(["--user", user_id_str + ":" + group_id_str])
     ret.extend(
         ["--tmpfs", "/home/feather:exec,uid=" + user_id_str + ",gid=" + group_id_str]
     )
     ret.extend(["--env", "HOME=/home/feather"])
+    path_dirs = [
+        "/home/feather/.local/bin",
+        "/usr/local/sbin",
+        "/usr/local/bin",
+        "/usr/sbin",
+        "/usr/bin",
+        "/sbin",
+        "/bin",
+    ]
+    ret.extend(["--env", "PATH=" + ":".join(path_dirs)])
     return ret
 
 

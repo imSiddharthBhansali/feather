@@ -1,16 +1,18 @@
 import asyncio
 import atexit
+import sys
 from pathlib import Path
 
 import logfire
 from pydantic_ai import Agent
 from pydantic_ai.usage import UsageLimits
+from pydantic_ai.workspaces import WorkspaceError
 from pydantic_ai_harness import RepoContext
 from pydantic_ai_harness.coder import Coder
 from pydantic_ai_harness.docker_sandbox import DockerSandbox, DockerSandboxBackend
 
 from ._cli import run_cli
-from ._utils import get_cli_args, get_docker_args
+from ._utils import destroy_docker_sandbox, get_cli_args, get_docker_args
 
 
 def main() -> None:
@@ -25,46 +27,42 @@ def main() -> None:
     retry_limit = cli_args.retry_limit
     request_limit = cli_args.request_limit
 
-    if (
-        source_dir is None
-        or model is None
-        or docker_image is None
-        or docker_publish_ports is None
-        or retry_limit is None
-        or request_limit is None
-    ):
-        print("Fatal: There was no value found for one or more parameters.")
-        return
+    if retry_limit < 0:
+        sys.exit("The retry limit must be at least 0.")
+
+    if request_limit < 1:
+        sys.exit("The request limit must be at least 1.")
 
     try:
         source_path = Path(source_dir).resolve(strict=True)
 
         if not source_path.is_dir():
-            print("The source directory must be a directory.")
-            return
+            sys.exit("The source directory must be a directory.")
 
         normalized_source_dir = source_path.as_posix()
-    except FileNotFoundError:
-        print("Invalid source directory: " + source_dir)
-        return
+    except OSError:
+        sys.exit("Unable to find/access source directory: " + source_dir)
+
+    if "," in normalized_source_dir or '"' in normalized_source_dir:
+        sys.exit(
+            'The source directory path cannot contain a comma (,) or a double quote (").'
+        )
 
     docker_args = get_docker_args(docker_publish_ports, normalized_source_dir)
     docker_sandbox_backend = DockerSandboxBackend(
         image=docker_image, docker_args=docker_args, working_dir="/workspace"
     )
+    _ = atexit.register(destroy_docker_sandbox, docker_sandbox_backend)
 
-    create_docker_sandbox = asyncio.run(docker_sandbox_backend.run("ls", shell=True))
+    try:
+        probe = asyncio.run(docker_sandbox_backend.run("ls", shell=True))
+    except WorkspaceError as e:
+        sys.exit("Failed to create Docker sandbox: " + str(e))
+
     docker_ref = docker_sandbox_backend.ref
 
-    if docker_ref is None:
-        print("Failed to create Docker sandbox.")
-        return
-
-    _ = atexit.register(asyncio.run, DockerSandbox().destroy(docker_ref))
-
-    if create_docker_sandbox.exit_code != 0:
-        print("Failed to create Docker sandbox.")
-        return
+    if docker_ref is None or probe.exit_code != 0:
+        sys.exit("Failed to create Docker sandbox: " + probe.stderr.strip())
 
     agent = Agent(
         model=model,

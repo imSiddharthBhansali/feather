@@ -4,7 +4,6 @@ Feather is a BYOK (bring-your-own-key) agentic coding CLI harness built on top o
 
 <img width="1015" height="584" alt="Feather Screenshot" src="https://github.com/user-attachments/assets/de3243e3-f370-40de-baf2-7217fc40241c" />
 
-
 ## Supported Models
 
 Any model compatible with Pydantic AI can be used. For details and naming conventions across different providers, see the [Pydantic AI Models Overview](https://pydantic.dev/docs/ai/models/overview/). Select the provider that you are looking to use and you should be able to find what you need to pass into Feather either through CLI arguments or through environment variables (more on that below).
@@ -13,8 +12,6 @@ Any model compatible with Pydantic AI can be used. For details and naming conven
 
 - uv (which will automatically deal with Python versioning and dependencies)
 - Docker (running and accessible)
-
-If on Windows, you will need to use Windows Subsystem for Linux (WSL).
 
 ## Installation
 
