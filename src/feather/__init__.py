@@ -55,7 +55,7 @@ def main() -> None:
     _ = atexit.register(destroy_docker_sandbox, docker_sandbox_backend)
 
     try:
-        probe = asyncio.run(docker_sandbox_backend.run("ls", shell=True))
+        probe = asyncio.run(docker_sandbox_backend.run("echo $PATH", shell=True))
     except WorkspaceError as e:
         sys.exit("Failed to create Docker sandbox: " + str(e))
 
@@ -64,13 +64,19 @@ def main() -> None:
     if docker_ref is None or probe.exit_code != 0:
         sys.exit("Failed to create Docker sandbox: " + probe.stderr.strip())
 
+    path_dirs = []
+    path_dirs.append("/home/feather/.local/bin")
+
+    if len(probe.stdout.strip()) > 0:
+        path_dirs.append(probe.stdout.strip())
+
     agent = Agent(
         model=model,
         retries=retry_limit,
         capabilities=[
             Coder(repo_context=False),
             RepoContext(nested_traversal=True),
-            DockerSandbox(),
+            DockerSandbox(env={"PATH": ":".join(path_dirs)}),
         ],
     )
 

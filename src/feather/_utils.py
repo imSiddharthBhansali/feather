@@ -28,16 +28,6 @@ def get_docker_args(publish_ports: list[str], source_dir: str) -> list[str]:
         ["--tmpfs", "/home/feather:exec,uid=" + user_id_str + ",gid=" + group_id_str]
     )
     ret.extend(["--env", "HOME=/home/feather"])
-    path_dirs = [
-        "/home/feather/.local/bin",
-        "/usr/local/sbin",
-        "/usr/local/bin",
-        "/usr/sbin",
-        "/usr/bin",
-        "/sbin",
-        "/bin",
-    ]
-    ret.extend(["--env", "PATH=" + ":".join(path_dirs)])
     return ret
 
 
