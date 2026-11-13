@@ -64,16 +64,10 @@ def run_cli(agent: Agent, usage_limits: UsageLimits, docker_ref: WorkspaceRef) -
             console.print("Cache write tokens: " + str(usage.cache_write_tokens))
             console.print("Time elapsed: " + str(end_time - start_time) + " seconds")
             console.print()
-        except KeyboardInterrupt:
-            console.print()
-            console.print()
-            console.print("Interrupted. Type /exit to quit.")
-            console.print()
-        except EOFError:
-            console.print()
+        except EOFError, KeyboardInterrupt:
             console.print()
             sys.exit(0)
         except AgentRunError as e:
             console.print()
-            console.print(e, markup=False)
+            console.print(e, markup=False, highlight=False)
             console.print()
