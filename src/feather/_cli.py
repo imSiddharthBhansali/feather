@@ -1,6 +1,7 @@
 import sys
 import time
 
+from prompt_toolkit import prompt
 from pydantic_ai import Agent, ModelMessage
 from pydantic_ai.exceptions import AgentRunError
 from pydantic_ai.usage import UsageLimits
@@ -20,7 +21,7 @@ def run_cli(agent: Agent, usage_limits: UsageLimits, docker_ref: WorkspaceRef) -
 
     while True:
         try:
-            user_prompt = console.input("Feather > ").strip()
+            user_prompt = prompt("Feather > ").strip()
             console.print()
 
             if len(user_prompt) == 0:
