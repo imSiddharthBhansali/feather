@@ -49,7 +49,7 @@ Feather exposes a command-line interface via `feather`. Usage is detailed below.
 
 - `--source-dir` *(string, required)*: Path to the directory that will be mounted into the Docker sandbox workspace. Can be absolute or relative (e.g., `/foo/bar/source/code` or `../project`).
 - `--model` *(string, required)*: The name of the LLM model following Pydantic AI conventions (e.g., `google:gemini-3.5-flash-lite`, `anthropic:claude-sonnet-5-5`, `openai:gpt-6.1-sol`).
-- `--docker-image` *(string, required)*: The name of the Docker image that will be used for the sandbox (e.g., `python:3.13-slim`).
+- `--docker-image` *(string, required)*: The name of the Docker image that will be used for the sandbox (e.g., `python:3.13-slim`). The Docker image must be Linux-based.
 - `--docker-publish-ports` *(strings, optional)*: A list of strings in the format `HOST_PORT:SANDBOX_PORT` for publishing the Docker sandbox to `127.0.0.1` on the host machine (e.g., `8000:7000 7000:6000 6000:5000`).
 - `--retry-limit` *(integer, optional)*: Retry limit per prompt. Defaults to `5`.
 - `--request-limit` *(integer, optional)*: Request limit per prompt. Defaults to `100`.

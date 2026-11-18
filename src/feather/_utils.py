@@ -2,12 +2,12 @@ import argparse
 import asyncio
 import os
 
-from pydantic_ai_harness.docker_sandbox import DockerSandbox, DockerSandboxBackend
+from pydantic_ai_harness.docker_container import DockerContainer, DockerContainerBackend
 
 
-def destroy_docker_sandbox(backend: DockerSandboxBackend) -> None:
+def destroy_docker_sandbox(backend: DockerContainerBackend) -> None:
     if backend.ref is not None:
-        asyncio.run(DockerSandbox().destroy(backend.ref))
+        asyncio.run(DockerContainer().destroy(backend.ref))
 
 
 def get_docker_args(publish_ports: list[str], source_dir: str) -> list[str]:
@@ -56,6 +56,7 @@ def get_cli_args() -> argparse.Namespace:
         type=str,
         required=True,
         help="The name of the Docker image that will be used for the sandbox."
+        + " The Docker image must be Linux-based."
         + " Example = python:3.13-slim",
     )
 
