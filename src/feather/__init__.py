@@ -9,7 +9,7 @@ from pydantic_ai.usage import UsageLimits
 from pydantic_ai.workspaces import WorkspaceError
 from pydantic_ai_harness import RepoContext
 from pydantic_ai_harness.coder import Coder
-from pydantic_ai_harness.docker_sandbox import DockerSandbox, DockerSandboxBackend
+from pydantic_ai_harness.docker_container import DockerContainer, DockerContainerBackend
 
 from ._cli import run_cli
 from ._utils import destroy_docker_sandbox, get_cli_args, get_docker_args
@@ -27,12 +27,6 @@ def main() -> None:
     retry_limit = cli_args.retry_limit
     request_limit = cli_args.request_limit
 
-    if retry_limit < 0:
-        sys.exit("The retry limit must be at least 0.")
-
-    if request_limit < 1:
-        sys.exit("The request limit must be at least 1.")
-
     try:
         source_path = Path(source_dir).resolve(strict=True)
 
@@ -49,7 +43,7 @@ def main() -> None:
         )
 
     docker_args = get_docker_args(docker_publish_ports, normalized_source_dir)
-    docker_sandbox_backend = DockerSandboxBackend(
+    docker_sandbox_backend = DockerContainerBackend(
         image=docker_image, docker_args=docker_args, working_dir="/workspace"
     )
     _ = atexit.register(destroy_docker_sandbox, docker_sandbox_backend)
@@ -76,7 +70,7 @@ def main() -> None:
         capabilities=[
             Coder(repo_context=False),
             RepoContext(nested_traversal=True),
-            DockerSandbox(env={"PATH": ":".join(path_dirs)}),
+            DockerContainer(env={"PATH": ":".join(path_dirs)}),
         ],
     )
 
