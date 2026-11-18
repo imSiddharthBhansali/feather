@@ -13,6 +13,8 @@ Any model compatible with Pydantic AI can be used. For details and naming conven
 - uv (which will automatically deal with Python versioning and dependencies)
 - Docker (running and accessible)
 
+If on Windows, you will need to use WSL (Windows Subsystem for Linux).
+
 ## Installation
 
 Clone the repository and install via uv:
