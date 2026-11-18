@@ -42,12 +42,17 @@ def run_cli(agent: Agent, usage_limits: UsageLimits, docker_ref: WorkspaceRef) -
                 continue
 
             start_time = time.perf_counter()
-            agent_response = agent.run_sync(
-                user_prompt=user_prompt,
-                usage_limits=usage_limits,
-                message_history=message_history,
-                workspace=docker_ref,
-            )
+            try:
+                agent_response = agent.run_sync(
+                    user_prompt=user_prompt,
+                    usage_limits=usage_limits,
+                    message_history=message_history,
+                    workspace=docker_ref,
+                )
+            except KeyboardInterrupt:
+                console.print()
+                console.print()
+                continue
             end_time = time.perf_counter()
 
             message_history.clear()

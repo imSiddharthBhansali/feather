@@ -37,10 +37,12 @@ def main() -> None:
     except OSError:
         sys.exit("Unable to find/access source directory: " + source_dir)
 
-    if "," in normalized_source_dir or '"' in normalized_source_dir:
-        sys.exit(
-            'The source directory path cannot contain a comma (,) or a double quote (").'
-        )
+    for prohibited_char in ',"\n':
+        if prohibited_char in normalized_source_dir:
+            sys.exit('Source directory path cannot contain , or " or \\n.')
+
+    if normalized_source_dir[-1].isspace():
+        sys.exit("Source directory path cannot end with whitespace.")
 
     docker_args = get_docker_args(docker_publish_ports, normalized_source_dir)
     docker_sandbox_backend = DockerContainerBackend(
