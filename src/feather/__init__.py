@@ -37,13 +37,6 @@ def main() -> None:
     except OSError:
         sys.exit("Unable to find/access source directory: " + source_dir)
 
-    for prohibited_char in ',"\n':
-        if prohibited_char in normalized_source_dir:
-            sys.exit('Source directory path cannot contain , or " or \\n.')
-
-    if normalized_source_dir[-1].isspace():
-        sys.exit("Source directory path cannot end with whitespace.")
-
     docker_args = get_docker_args(docker_publish_ports, normalized_source_dir)
     docker_sandbox_backend = DockerContainerBackend(
         image=docker_image, docker_args=docker_args, working_dir="/workspace"
@@ -51,6 +44,7 @@ def main() -> None:
     _ = atexit.register(destroy_docker_sandbox, docker_sandbox_backend)
 
     try:
+        # pyrefly: ignore[partially-unknown-type]
         probe = asyncio.run(docker_sandbox_backend.run("echo $PATH", shell=True))
     except WorkspaceError as e:
         sys.exit("Failed to create Docker sandbox: " + str(e))

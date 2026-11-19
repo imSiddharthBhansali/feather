@@ -1,17 +1,40 @@
 import argparse
 import asyncio
 import os
+from pathlib import Path
 
 from pydantic_ai_harness.docker_container import DockerContainer, DockerContainerBackend
+
+from ._cli_args import CliArgs
 
 
 def destroy_docker_sandbox(backend: DockerContainerBackend) -> None:
     if backend.ref is not None:
+        # pyrefly: ignore[partially-unknown-type]
         asyncio.run(DockerContainer().destroy(backend.ref))
+
+
+def add_docker_ro(docker_args: list[str], base_path: Path, pattern: str) -> None:
+    for match in base_path.rglob(pattern):
+        abs_path = match.resolve().as_posix()
+        rel_path = match.relative_to(base_path).as_posix()
+        docker_args.extend(
+            [
+                "--mount",
+                "type=bind,source="
+                + abs_path
+                + ",target=/workspace/"
+                + rel_path
+                + ",readonly",
+            ]
+        )
 
 
 def get_docker_args(publish_ports: list[str], source_dir: str) -> list[str]:
     ret = ["--mount", "type=bind,source=" + source_dir + ",target=/workspace"]
+    base_path = Path(source_dir).resolve()
+    add_docker_ro(ret, base_path, ".git")
+    add_docker_ro(ret, base_path, ".gitignore")
 
     for ports in publish_ports:
         ret.extend(["--publish", "127.0.0.1:" + ports])
@@ -27,7 +50,7 @@ def get_docker_args(publish_ports: list[str], source_dir: str) -> list[str]:
     return ret
 
 
-def get_cli_args() -> argparse.Namespace:
+def get_cli_args() -> CliArgs:
     parser = argparse.ArgumentParser()
 
     _ = parser.add_argument(
@@ -80,4 +103,4 @@ def get_cli_args() -> argparse.Namespace:
         help="Request limit per prompt. Defaults to 100.",
     )
 
-    return parser.parse_args()
+    return parser.parse_args(namespace=CliArgs())
