@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import os
+import sys
 from pathlib import Path
 
 from pydantic_ai_harness.docker_container import DockerContainer, DockerContainerBackend
@@ -18,6 +19,10 @@ def add_docker_ro(docker_args: list[str], base_path: Path, pattern: str) -> None
     for match in base_path.rglob(pattern):
         abs_path = match.resolve().as_posix()
         rel_path = match.relative_to(base_path).as_posix()
+
+        if "," in rel_path:
+            sys.exit("Files and subdirectories cannot have commas in their paths.")
+
         docker_args.extend(
             [
                 "--mount",

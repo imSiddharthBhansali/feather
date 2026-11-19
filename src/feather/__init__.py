@@ -37,6 +37,9 @@ def main() -> None:
     except OSError:
         sys.exit("Unable to find/access source directory: " + source_dir)
 
+    if "," in normalized_source_dir:
+        sys.exit("The source directory path cannot include a comma.")
+
     docker_args = get_docker_args(docker_publish_ports, normalized_source_dir)
     docker_sandbox_backend = DockerContainerBackend(
         image=docker_image, docker_args=docker_args, working_dir="/workspace"
