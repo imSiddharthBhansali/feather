@@ -1,17 +1,50 @@
 import argparse
 import asyncio
 import os
+import sys
+from pathlib import Path
 
 from pydantic_ai_harness.docker_container import DockerContainer, DockerContainerBackend
+
+from ._cli_args import CliArgs
+
+
+def validate_path_str(path_str: str) -> None:
+    if "," in path_str:
+        sys.exit(path_str + " has a comma. This will break Docker. Exiting.")
 
 
 def destroy_docker_sandbox(backend: DockerContainerBackend) -> None:
     if backend.ref is not None:
+        # pyrefly: ignore[partially-unknown-type]
         asyncio.run(DockerContainer().destroy(backend.ref))
+
+
+def add_docker_ro(docker_args: list[str], base_path: Path, pattern: str) -> None:
+    for match in base_path.rglob(pattern):
+        abs_path = match.resolve().as_posix()
+        rel_path = match.relative_to(base_path).as_posix()
+        validate_path_str(abs_path)
+        validate_path_str(rel_path)
+
+        docker_args.extend(
+            [
+                "--mount",
+                "type=bind,source="
+                + abs_path
+                + ",target=/workspace/"
+                + rel_path
+                + ",readonly",
+            ]
+        )
 
 
 def get_docker_args(publish_ports: list[str], source_dir: str) -> list[str]:
     ret = ["--mount", "type=bind,source=" + source_dir + ",target=/workspace"]
+    validate_path_str(source_dir)
+    base_path = Path(source_dir).resolve(strict=True)
+    add_docker_ro(ret, base_path, ".git")
+    add_docker_ro(ret, base_path, ".gitignore")
 
     for ports in publish_ports:
         ret.extend(["--publish", "127.0.0.1:" + ports])
@@ -27,7 +60,7 @@ def get_docker_args(publish_ports: list[str], source_dir: str) -> list[str]:
     return ret
 
 
-def get_cli_args() -> argparse.Namespace:
+def get_cli_args() -> CliArgs:
     parser = argparse.ArgumentParser()
 
     _ = parser.add_argument(
@@ -80,4 +113,4 @@ def get_cli_args() -> argparse.Namespace:
         help="Request limit per prompt. Defaults to 100.",
     )
 
-    return parser.parse_args()
+    return parser.parse_args(namespace=CliArgs())
