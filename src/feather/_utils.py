@@ -113,4 +113,11 @@ def get_cli_args() -> CliArgs:
         help="Request limit per prompt. Defaults to 100.",
     )
 
+    _ = parser.add_argument(
+        "--mcp-file",
+        type=str,
+        help="Path to a mcpServers JSON file. This is the same JSON shape used"
+        + " for MCP by Claude Desktop, Claude Code, and Cursor.",
+    )
+
     return parser.parse_args(namespace=CliArgs())

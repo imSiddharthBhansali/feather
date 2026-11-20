@@ -5,6 +5,7 @@ from pathlib import Path
 
 import logfire
 from pydantic_ai import Agent
+from pydantic_ai.mcp import load_mcp_toolsets
 from pydantic_ai.usage import UsageLimits
 from pydantic_ai.workspaces import WorkspaceError
 from pydantic_ai_harness import RepoContext
@@ -26,6 +27,7 @@ def main() -> None:
     docker_publish_ports = cli_args.docker_publish_ports
     retry_limit = cli_args.retry_limit
     request_limit = cli_args.request_limit
+    mcp_file = cli_args.mcp_file
 
     try:
         source_path = Path(source_dir).resolve(strict=True)
@@ -60,6 +62,14 @@ def main() -> None:
     if len(probe.stdout.strip()) > 0:
         path_dirs.append(probe.stdout.strip())
 
+    toolsets = []
+
+    if mcp_file is not None:
+        try:
+            toolsets.extend(load_mcp_toolsets(mcp_file))
+        except (OSError, ValueError) as e:
+            sys.exit("Failed to process MCP file " + mcp_file + ":" + str(e))
+
     agent = Agent(
         model=model,
         retries=retry_limit,
@@ -68,6 +78,7 @@ def main() -> None:
             RepoContext(nested_traversal=True),
             DockerContainer(env={"PATH": ":".join(path_dirs)}),
         ],
+        toolsets=toolsets,
     )
 
     run_cli(agent, UsageLimits(request_limit=request_limit), docker_ref)
