@@ -8,3 +8,4 @@ class CliArgs(argparse.Namespace):
     docker_publish_ports: list[str]
     retry_limit: int
     request_limit: int
+    mcp_file: str | None

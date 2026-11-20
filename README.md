@@ -55,6 +55,7 @@ Feather exposes a command-line interface via `feather`. Usage is detailed below.
 - `--docker-publish-ports` *(strings, optional)*: A list of strings in the format `HOST_PORT:SANDBOX_PORT` for publishing the Docker sandbox to `127.0.0.1` on the host machine (e.g., `8000:7000 7000:6000 6000:5000`).
 - `--retry-limit` *(integer, optional)*: Retry limit per prompt. Defaults to `5`.
 - `--request-limit` *(integer, optional)*: Request limit per prompt. Defaults to `100`.
+- `--mcp-file` *(string, optional)*: Path to a `mcpServers` JSON file. This is the same JSON shape used for MCP by Claude Desktop, Claude Code, and Cursor.
 
 ### Example
 
